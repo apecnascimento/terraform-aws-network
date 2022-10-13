@@ -113,7 +113,6 @@ resource "aws_nat_gateway" "nat" {
 
 /* Routing table for private subnet */
 resource "aws_route_table" "private_route_table" {
-  count  = length(var.public_subnets) > 0 ? 1 : 0
   vpc_id = aws_vpc.vpc.id
   tags = {
     Name        = format("%s-private-route-table", var.environment)
@@ -157,23 +156,23 @@ resource "aws_route_table_association" "public" {
 resource "aws_route_table_association" "ec2_private" {
   count          = length(var.ec2_subnets)
   subnet_id      = element(aws_subnet.ec2_subnet.*.id, count.index)
-  route_table_id = aws_route_table.private_route_table[0].id
+  route_table_id = aws_route_table.private_route_table.id
 }
 
 resource "aws_route_table_association" "rds_private" {
   count          = length(var.rds_subnets)
   subnet_id      = element(aws_subnet.rds_subnet.*.id, count.index)
-  route_table_id = aws_route_table.private_route_table[0].id
+  route_table_id = aws_route_table.private_route_table.id
 }
 
 resource "aws_route_table_association" "elasticache_private" {
   count          = length(var.elasticache_subnets)
   subnet_id      = element(aws_subnet.elasticache_subnet.*.id, count.index)
-  route_table_id = aws_route_table.private_route_table[0].id
+  route_table_id = aws_route_table.private_route_table.id
 }
 
 resource "aws_route_table_association" "eks_private" {
   count          = length(var.eks_subnets)
   subnet_id      = element(aws_subnet.eks_subnet.*.id, count.index)
-  route_table_id = aws_route_table.private_route_table[0].id
+  route_table_id = aws_route_table.private_route_table.id
 }
