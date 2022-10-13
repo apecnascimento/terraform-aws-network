@@ -1,4 +1,4 @@
-resource "aws_vpc" "vaipay_vpc" {
+resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = var.vpc_enable_dns_hostnames
   tags = {
@@ -7,17 +7,17 @@ resource "aws_vpc" "vaipay_vpc" {
   }
 }
 
-resource "aws_flow_log" "vaipay_vpc_flow_log" {
+resource "aws_flow_log" "vpc_flow_log" {
   count                    = var.log_bucket_arn != "" ? 1 : 0
   log_destination          = var.log_bucket_arn
   log_destination_type     = "s3"
   traffic_type             = "ALL"
-  vpc_id                   = aws_vpc.vaipay_vpc.id
+  vpc_id                   = aws_vpc.vpc.id
   max_aggregation_interval = var.log_max_aggregation_interval
 }
 
 resource "aws_subnet" "public_subnet" {
-  vpc_id                  = aws_vpc.vaipay_vpc.id
+  vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.public_subnets)
   cidr_block              = element(var.public_subnets, count.index).cidr
   availability_zone       = element(var.public_subnets, count.index).subnet_az
@@ -32,7 +32,7 @@ resource "aws_subnet" "public_subnet" {
 
 /* EC2 Private subnet */
 resource "aws_subnet" "ec2_subnet" {
-  vpc_id                  = aws_vpc.vaipay_vpc.id
+  vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.ec2_subnets)
   cidr_block              = element(var.ec2_subnets, count.index).cidr
   availability_zone       = element(var.ec2_subnets, count.index).subnet_az
@@ -45,7 +45,7 @@ resource "aws_subnet" "ec2_subnet" {
 
 /* RDS Private subnet */
 resource "aws_subnet" "rds_subnet" {
-  vpc_id                  = aws_vpc.vaipay_vpc.id
+  vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.rds_subnets)
   cidr_block              = element(var.rds_subnets, count.index).cidr
   availability_zone       = element(var.rds_subnets, count.index).subnet_az
@@ -58,7 +58,7 @@ resource "aws_subnet" "rds_subnet" {
 
 /* Elasticache Private subnet */
 resource "aws_subnet" "elasticache_subnet" {
-  vpc_id                  = aws_vpc.vaipay_vpc.id
+  vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.elasticache_subnets)
   cidr_block              = element(var.elasticache_subnets, count.index).cidr
   availability_zone       = element(var.elasticache_subnets, count.index).subnet_az
@@ -70,7 +70,7 @@ resource "aws_subnet" "elasticache_subnet" {
 }
 
 resource "aws_subnet" "eks_subnet" {
-  vpc_id                  = aws_vpc.vaipay_vpc.id
+  vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.eks_subnets)
   cidr_block              = element(var.eks_subnets, count.index).cidr
   availability_zone       = element(var.eks_subnets, count.index).subnet_az
@@ -85,7 +85,7 @@ resource "aws_subnet" "eks_subnet" {
 
 resource "aws_internet_gateway" "ig" {
   count  = length(var.public_subnets) > 0 ? 1 : 0
-  vpc_id = aws_vpc.vaipay_vpc.id
+  vpc_id = aws_vpc.vpc.id
   tags = {
     Name        = format("%s-igw", var.environment)
     Environment = var.environment
@@ -114,7 +114,7 @@ resource "aws_nat_gateway" "nat" {
 /* Routing table for private subnet */
 resource "aws_route_table" "private_route_table" {
   count  = length(var.public_subnets) > 0 ? 1 : 0
-  vpc_id = aws_vpc.vaipay_vpc.id
+  vpc_id = aws_vpc.vpc.id
   tags = {
     Name        = format("%s-private-route-table", var.environment)
     Environment = var.environment
@@ -124,7 +124,7 @@ resource "aws_route_table" "private_route_table" {
 /* Routing table for public subnet */
 resource "aws_route_table" "public_route_table" {
   count  = length(var.public_subnets) > 0 ? 1 : 0
-  vpc_id = aws_vpc.vaipay_vpc.id
+  vpc_id = aws_vpc.vpc.id
   tags = {
     Name        = format("%s-public-route-table", var.environment)
     Environment = var.environment

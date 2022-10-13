@@ -26,7 +26,7 @@ variable "log_bucket_arn" {
 variable "log_max_aggregation_interval" {
   description = "flow log aggregation interval in seconds"
   type        = number
-  default = 30
+  default     = 30
 }
 
 
