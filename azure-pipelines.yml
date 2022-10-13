@@ -1,0 +1,31 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+
+steps:
+  
+- task: TerraformCLI@0
+  displayName: Terraform fmt
+  inputs:
+    command: 'fmt'
+    allowTelemetryCollection: true
+
+- task: gitversion/setup@0
+  displayName: Setup GitVersion
+  inputs:
+    versionSpec: '5.x'
+
+- task: gitversion/execute@0
+  displayName: Create a new Tag
+  inputs:
+    useConfigFile: true
+    configFilePath: './GitVersion.yml'
+
+- task: Bash@3
+  displayName: Update build number
+  inputs:
+    targetType: inline
+    script: echo "##vso[build.updatebuildnumber]$(SemVer)"

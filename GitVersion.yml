@@ -1,0 +1,10 @@
+mode: Mainline
+branches:
+  feature:
+    tag: feature-{BranchName}
+    increment: Minor
+  hotfix:
+    tag: fix-{BranchName}
+ignore:
+  sha: []
+merge-message-formats: {}
